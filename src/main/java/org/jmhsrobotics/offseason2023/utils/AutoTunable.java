@@ -8,11 +8,11 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class Jank {
-    public static class toSend implements Sendable {
+public class AutoTunable {
+    public static class TuneableSender implements Sendable {
         private ArrayList<TuneableField> val;
 
-        public toSend(ArrayList<TuneableField> val) {
+        public TuneableSender(ArrayList<TuneableField> val) {
             this.val = val;
         }
 
@@ -21,6 +21,9 @@ public class Jank {
                 var obj = tf.obj;
                 var f = tf.f;
                 var key = f.getName();
+                var rawVal = f.get(obj);
+                System.out.println("Log TYPE: " + f.getName() + " " + f.getType() + " " + rawVal.getClass().getName());
+                System.out.println(long.class);
                 if (f.getType() == boolean.class) {
                     builder.addBooleanProperty(key, () -> { // Getter
                         try {
@@ -181,6 +184,70 @@ public class Jank {
                             e.printStackTrace();
                         }
                     });
+                } else if (f.getType() == int.class) {
+                    builder.addIntegerProperty(key, () -> { // Getter
+                        try {
+                            return (long) f.getInt(obj);
+                        } catch (IllegalArgumentException | IllegalAccessException e) {
+                            e.printStackTrace();
+                            return 0;
+                        }
+                    }, (long value) -> { // Setter
+                        try {
+                            f.setInt(obj, (int) value);
+                        } catch (IllegalArgumentException | IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
+                    });
+                } else if (f.getType() == short.class) {
+                    builder.addIntegerProperty(key, () -> { // Getter
+                        try {
+                            return (long) f.getShort(obj);
+                        } catch (IllegalArgumentException | IllegalAccessException e) {
+                            e.printStackTrace();
+                            return 0;
+                        }
+                    }, (long value) -> { // Setter
+                        try {
+                            f.setShort(obj, (short) value);
+                        } catch (IllegalArgumentException | IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
+                    });
+                } else if (f.getType() == byte.class) {
+                    builder.addIntegerProperty(key, () -> { // Getter
+                        try {
+                            return (long) f.getByte(obj);
+                        } catch (IllegalArgumentException | IllegalAccessException e) {
+                            e.printStackTrace();
+                            return 0;
+                        }
+                    }, (long value) -> { // Setter
+                        try {
+                            f.setByte(obj, (byte) value);
+                        } catch (IllegalArgumentException | IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
+                    });
+                } else if (f.getType() == char.class) { // TODO Should I put these in as Strings?
+                    builder.addIntegerProperty(key, () -> { // Getter
+                        try {
+                            return (long) f.getChar(obj);
+                        } catch (IllegalArgumentException | IllegalAccessException e) {
+                            e.printStackTrace();
+                            return 0;
+                        }
+                    }, (long value) -> { // Setter
+                        try {
+                            f.setChar(obj, (char) value);
+                        } catch (IllegalArgumentException | IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
+                    });
+                }
+
+                else {
+                    System.out.println("UNKNWON TYPE: " + f.getName() + " " + f.getType());
                 }
 
             } catch (Exception e) {
@@ -192,28 +259,28 @@ public class Jank {
         @Override
         public void initSendable(SendableBuilder builder) {
 
-            for(var data: val){
+            for (var data : val) {
                 addtoBuilder(builder, data);
             }
             // var tmp = val.get(0);
             // try {
-            //     var out2 = (long[]) tmp.f.get(tmp.obj);
+            // var out2 = (long[]) tmp.f.get(tmp.obj);
             // } catch (Exception e) {
-            //     // TODO Auto-generated catch block
-            //     e.printStackTrace();
+            // // TODO Auto-generated catch block
+            // e.printStackTrace();
             // }
 
             // builder.addIntegerArrayProperty("jank1", () -> {
-            //     long[] out = new long[] { 0, 1 };
-            //     try {
-            //     var out2 = (long[])tmp.f.get(tmp.obj);
-            //     return out2;
-            //     } catch (Exception e) {
-            //     // TODO Auto-generated catch block
-            //     e.printStackTrace();
-            //     }
+            // long[] out = new long[] { 0, 1 };
+            // try {
+            // var out2 = (long[])tmp.f.get(tmp.obj);
+            // return out2;
+            // } catch (Exception e) {
+            // // TODO Auto-generated catch block
+            // e.printStackTrace();
+            // }
 
-            //     return out;
+            // return out;
             // }, null);
             // try {
 
@@ -260,7 +327,7 @@ public class Jank {
 
     }
 
-    public static void jank(Object data) {
+    public static void recurseAnotations(Object data) {
         ArrayList<TuneableField> foundFields = new ArrayList<TuneableField>();
         // var tmp = new TuneableField(null, null);
         // var tmp = new toSend(null);
@@ -284,7 +351,7 @@ public class Jank {
                 if (f.getType().getAnnotation(Tunable.class) != null) {
                     System.out.println("Enter  ->" + f.getType().getName());
                     f.setAccessible(true);
-                    Jank.jank(f.get(data));
+                    AutoTunable.recurseAnotations(f.get(data));
                 }
 
                 // System.out.println(f.getName());
@@ -299,9 +366,9 @@ public class Jank {
                 // SmartDashboard.putData("testing", out);
                 // }
             }
-            
+
             if (foundFields.size() != 0) {
-                var sendable = new toSend(foundFields);
+                var sendable = new TuneableSender(foundFields);
                 var path = data.getClass().getName().replace(".", "/");
                 SmartDashboard.putData(path, sendable);
             }
@@ -313,8 +380,8 @@ public class Jank {
 
     }
 
-    public static void initTune(RobotBase base) {
-        Jank.jank(base);
+    public static void enableTuning(RobotBase base) {
+        AutoTunable.recurseAnotations(base);
     }
 
     private static class TuneableField {

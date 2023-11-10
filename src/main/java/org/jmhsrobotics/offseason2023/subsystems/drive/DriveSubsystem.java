@@ -68,7 +68,7 @@ public class DriveSubsystem extends SubsystemBase {
   @Tunable
   private int hello2 = 23;
   @Tunable
-  private long[] helloworld = {2,3};
+  private final long[] helloworld = {2,3};
   // Odometry class for tracking robot pose
   SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(
       SwerveConstants.kDriveKinematics,

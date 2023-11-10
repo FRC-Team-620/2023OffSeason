@@ -6,7 +6,7 @@ package org.jmhsrobotics.offseason2023;
 
 import java.util.List;
 
-import org.jmhsrobotics.offseason2023.utils.Jank;
+import org.jmhsrobotics.offseason2023.utils.AutoTunable;
 import org.jmhsrobotics.offseason2023.utils.Tunable;
 
 import com.pathplanner.lib.commands.FollowPathHolonomic;
@@ -30,11 +30,13 @@ public class Robot extends TimedRobot {
   private RobotContainer m_robotContainer;
   @Tunable
   private long example = 2;
+  @Tunable
+  private Double doubleClass = 0.5;
 
   @Override
   public void robotInit() {
     m_robotContainer = new RobotContainer();
-    
+    AutoTunable.enableTuning(this);
     // CommandScheduler.getInstance().cancelAll();
     // PathPlannerServer.startServer(5811);
     
@@ -106,7 +108,6 @@ public class Robot extends TimedRobot {
 
     System.out.println("Running Annon: ");
     // Jank.jank(m_robotContainer.driveSubsystem);
-    Jank.initTune(this);
 
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
