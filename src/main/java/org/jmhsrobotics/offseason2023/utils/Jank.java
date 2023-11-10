@@ -1,28 +1,15 @@
 package org.jmhsrobotics.offseason2023.utils;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
-import org.jmhsrobotics.offseason2023.subsystems.drive.DriveSubsystem;
-import org.jmhsrobotics.warcore.math.TuneableProfiledPIDController;
-
-import com.fasterxml.jackson.databind.introspect.AccessorNamingStrategy.Provider;
-
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 
 public class Jank {
     public static class toSend implements Sendable {
-
         private ArrayList<TuneableField> val;
 
         public toSend(ArrayList<TuneableField> val) {
@@ -69,7 +56,7 @@ public class Jank {
                 } else if (f.getType() == long.class) {
                     builder.addIntegerProperty(key, () -> { // Getter
                         try {
-                            
+
                             return f.getLong(obj);
                         } catch (IllegalArgumentException | IllegalAccessException e) {
                             e.printStackTrace();
@@ -196,7 +183,6 @@ public class Jank {
                     });
                 }
 
-            
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -205,33 +191,70 @@ public class Jank {
 
         @Override
         public void initSendable(SendableBuilder builder) {
-            try {
 
-                builder.setSmartDashboardType("tunableVal");
-               
-                for (TuneableField tf : val) {
-                    addtoBuilder(builder, tf);
-                   
-                }
-                // NetworkTableEntry.isValidDataType();
-                // builder.addIntegerProperty(null, null, null);
-                // builder.addDoubleProperty(f.getName(), () -> {
-                // try {
-                // return f.getDouble(obj);
-                // } catch (Exception e) {
-                // return Double.NaN;
-                // }
-                // }, (double val) -> {
-                // try {
-                // f.setDouble(this.obj, val);
-                // } catch (IllegalArgumentException | IllegalAccessException e) {
-                // // TODO Auto-generated catch block
-                // e.printStackTrace();
-                // }
-                // });
-            } catch (Exception e) {
-                e.printStackTrace();
+            for(var data: val){
+                addtoBuilder(builder, data);
             }
+            // var tmp = val.get(0);
+            // try {
+            //     var out2 = (long[]) tmp.f.get(tmp.obj);
+            // } catch (Exception e) {
+            //     // TODO Auto-generated catch block
+            //     e.printStackTrace();
+            // }
+
+            // builder.addIntegerArrayProperty("jank1", () -> {
+            //     long[] out = new long[] { 0, 1 };
+            //     try {
+            //     var out2 = (long[])tmp.f.get(tmp.obj);
+            //     return out2;
+            //     } catch (Exception e) {
+            //     // TODO Auto-generated catch block
+            //     e.printStackTrace();
+            //     }
+
+            //     return out;
+            // }, null);
+            // try {
+
+            // builder.setSmartDashboardType("tunableVal");
+
+            // // for (TuneableField tf : val) {
+            // // addtoBuilder(builder, tf);
+
+            // // }
+            // System.out.println(val.size() + " asdfasdf");
+            // var tmp = val.get(0);
+            // // tmp.f.get(tmp.obj);
+            // builder.addIntegerArrayProperty("jank1", ()->{
+            // long[] out = new long[]{0,1};
+            // // try {
+            // // var out2 = (long[])tmp.f.get(tmp.obj);
+            // // } catch (Exception e) {
+            // // // TODO Auto-generated catch block
+            // // e.printStackTrace();
+            // // }
+
+            // return out;}, null);
+            // // NetworkTableEntry.isValidDataType();
+            // // builder.addIntegerProperty(null, null, null);
+            // // builder.addDoubleProperty(f.getName(), () -> {
+            // // try {
+            // // return f.getDouble(obj);
+            // // } catch (Exception e) {
+            // // return Double.NaN;
+            // // }
+            // // }, (double val) -> {
+            // // try {
+            // // f.setDouble(this.obj, val);
+            // // } catch (IllegalArgumentException | IllegalAccessException e) {
+            // // // TODO Auto-generated catch block
+            // // e.printStackTrace();
+            // // }
+            // // });
+            // } catch (Exception e) {
+            // e.printStackTrace();
+            // }
             // TODO Auto-generated method stub
         }
 
@@ -239,6 +262,8 @@ public class Jank {
 
     public static void jank(Object data) {
         ArrayList<TuneableField> foundFields = new ArrayList<TuneableField>();
+        // var tmp = new TuneableField(null, null);
+        // var tmp = new toSend(null);
         try {
             for (Field f : data.getClass().getDeclaredFields()) {
 
@@ -246,7 +271,6 @@ public class Jank {
                 if (f.getAnnotation(Tunable.class) != null) {
                     f.setAccessible(true);
                     foundFields.add(new TuneableField(f, data));
-
                     // System.out.println(data.getClass().getPackageName() + " - " + f.getName() + "
                     // -- To be Tunable...");
                     // System.out.println(f.get(data));
@@ -275,8 +299,13 @@ public class Jank {
                 // SmartDashboard.putData("testing", out);
                 // }
             }
-            var sendable = new toSend(foundFields);
-            SmartDashboard.putData("Testing", sendable);
+            
+            if (foundFields.size() != 0) {
+                var sendable = new toSend(foundFields);
+                var path = data.getClass().getName().replace(".", "/");
+                SmartDashboard.putData(path, sendable);
+            }
+
         } catch (Exception e) {
             // TODO: handle exception
             e.printStackTrace();

@@ -7,6 +7,7 @@ package org.jmhsrobotics.offseason2023;
 import java.util.List;
 
 import org.jmhsrobotics.offseason2023.utils.Jank;
+import org.jmhsrobotics.offseason2023.utils.Tunable;
 
 import com.pathplanner.lib.commands.FollowPathHolonomic;
 import com.pathplanner.lib.path.GoalEndState;
@@ -27,6 +28,8 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
+  @Tunable
+  private long example = 2;
 
   @Override
   public void robotInit() {
