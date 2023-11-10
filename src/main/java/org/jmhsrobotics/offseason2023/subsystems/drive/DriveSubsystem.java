@@ -95,6 +95,9 @@ public class DriveSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    if(helloworld[0] == 10){
+      System.out.println("Hello World!");
+    }
     // Update the odometry in the periodic block
     m_odometry.update(
         Rotation2d.fromDegrees(m_gyro.getYaw()),

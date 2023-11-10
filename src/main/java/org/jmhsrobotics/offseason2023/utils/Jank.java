@@ -23,8 +23,6 @@ import java.lang.reflect.Type;
 public class Jank {
     public static class toSend implements Sendable {
 
-        private Field f;
-        private Object obj;
         private ArrayList<TuneableField> val;
 
         public toSend(ArrayList<TuneableField> val) {
@@ -33,58 +31,172 @@ public class Jank {
 
         private void addtoBuilder(SendableBuilder builder, TuneableField tf) {
             try {
-                for (var methods : builder.getClass().getMethods()) {
-                    if (methods.getParameterCount() == 3 && methods.getParameterTypes()[0] == String.class
-                            && methods.getParameterTypes()[1] == Supplier.class
-                            && methods.getParameterTypes()[2] == Consumer.class) {
-                        System.out.println(
-                                methods.getName() + " _X_ "
-                                        + methods.getParameters()[1].getParameterizedType().getTypeName());
-                        Type providerType = ((ParameterizedType) methods.getParameters()[1].getParameterizedType())
-                                .getActualTypeArguments()[0];
-                        Type consumerType = ((ParameterizedType) methods.getParameters()[1].getParameterizedType())
-                                .getActualTypeArguments()[0];
-                        // for( var paramtype : todo.getParameterTypes()){
-                        // System.out.println(providerType == Double.class);
-                        Supplier<?> supplier = () -> {
-                            // var tunvaltmp = val.get(0);
-                            try {
-                                System.out.println("Test.");
-                                var tmp2 = tf.f.get(tf.obj);
-                                // System.out.println(providerType.getClass().getName());
-                                return tf.f.getType().cast(tmp2);
-                            } catch (IllegalArgumentException | IllegalAccessException e) {
-                                e.printStackTrace();
-                                System.out.println("Test3");
-                                return null;
-                                // e.printStackTrace();
-                            }
-                        };
-                        Consumer<?> consumer = (value) -> {
-                            try {
-                                tf.f.set(tf.obj, value);
-                                System.out.println("Setting!!!");
-                            } catch (IllegalArgumentException | IllegalAccessException e) {
-                                // TODO Auto-generated catch block
-                                e.printStackTrace();
-                            }
-                        };
-                        // consumer.class.
-                        System.out.println(providerType + " != " + tf.f.getType() );
-                        if(providerType != tf.f.getType()){
-                            continue;
+                var obj = tf.obj;
+                var f = tf.f;
+                var key = f.getName();
+                if (f.getType() == boolean.class) {
+                    builder.addBooleanProperty(key, () -> { // Getter
+                        try {
+                            return f.getBoolean(obj);
+                        } catch (IllegalArgumentException | IllegalAccessException e) {
+                            e.printStackTrace();
+                            return false;
                         }
-                        System.out.println("Attempting: " + tf.f.getName());
-                        methods.invoke(builder, tf.f.getName(), methods.getParameters()[1].getType().cast(supplier), null);
-                        // builder.addIntegerArrayProperty("asdf",supplier,null);
-                        // SmartDashboard.putData((Sendable)out);
-                        // builder.addIntegerArrayProperty(null, null, null);
-                        // System.out.println("\t " + paramtype.getName());
-                        // Supplier<providerType> t;
-                        // }
-                    }
+                    }, (boolean value) -> { // Setter
+                        try {
+                            f.setBoolean(obj, value);
+                        } catch (IllegalArgumentException | IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
+                    });
 
+                } else if (f.getType() == boolean[].class) {
+                    builder.addBooleanArrayProperty(key, () -> { // Getter
+                        try {
+                            return (boolean[]) f.get(obj);
+                        } catch (IllegalArgumentException | IllegalAccessException e) {
+                            e.printStackTrace();
+                            return null;
+                        }
+                    }, (boolean[] value) -> { // Setter
+                        try {
+                            f.set(obj, value);
+                        } catch (IllegalArgumentException | IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
+                    });
+
+                } else if (f.getType() == long.class) {
+                    builder.addIntegerProperty(key, () -> { // Getter
+                        try {
+                            
+                            return f.getLong(obj);
+                        } catch (IllegalArgumentException | IllegalAccessException e) {
+                            e.printStackTrace();
+                            return 0;
+                        }
+                    }, (long value) -> { // Setter
+                        try {
+                            f.setLong(obj, value);
+                        } catch (IllegalArgumentException | IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
+                    });
+
+                } else if (f.getType() == long[].class) {
+                    builder.addIntegerArrayProperty(key, () -> { // Getter
+                        try {
+                            return (long[]) f.get(obj);
+                        } catch (IllegalArgumentException | IllegalAccessException e) {
+                            e.printStackTrace();
+                            return null;
+                        }
+                    }, (long[] value) -> { // Setter
+                        try {
+                            f.set(obj, value);
+                        } catch (IllegalArgumentException | IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
+                    });
+
+                } else if (f.getType() == float.class) {
+                    builder.addFloatProperty(key, () -> { // Getter
+                        try {
+                            return f.getFloat(obj);
+                        } catch (IllegalArgumentException | IllegalAccessException e) {
+                            e.printStackTrace();
+                            return Float.NaN;
+                        }
+                    }, (float value) -> { // Setter
+                        try {
+                            f.setFloat(obj, value);
+                        } catch (IllegalArgumentException | IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
+                    });
+
+                } else if (f.getType() == float[].class) {
+                    builder.addFloatArrayProperty(key, () -> { // Getter
+                        try {
+                            return (float[]) f.get(obj);
+                        } catch (IllegalArgumentException | IllegalAccessException e) {
+                            e.printStackTrace();
+                            return null;
+                        }
+                    }, (float[] value) -> { // Setter
+                        try {
+                            f.set(obj, value);
+                        } catch (IllegalArgumentException | IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
+                    });
+
+                } else if (f.getType() == double.class) {
+                    builder.addDoubleProperty(key, () -> { // Getter
+                        try {
+                            return f.getDouble(obj);
+                        } catch (IllegalArgumentException | IllegalAccessException e) {
+                            e.printStackTrace();
+                            return Double.NaN;
+                        }
+                    }, (double value) -> { // Setter
+                        try {
+                            f.setDouble(obj, value);
+                        } catch (IllegalArgumentException | IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
+                    });
+
+                } else if (f.getType() == double[].class) {
+                    builder.addDoubleArrayProperty(key, () -> { // Getter
+                        try {
+                            return (double[]) f.get(obj);
+                        } catch (IllegalArgumentException | IllegalAccessException e) {
+                            e.printStackTrace();
+                            return null;
+                        }
+                    }, (double[] value) -> { // Setter
+                        try {
+                            f.set(obj, value);
+                        } catch (IllegalArgumentException | IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
+                    });
+
+                } else if (f.getType() == String.class) {
+                    builder.addStringProperty(key, () -> { // Getter
+                        try {
+                            return (String) f.get(obj);
+                        } catch (IllegalArgumentException | IllegalAccessException e) {
+                            e.printStackTrace();
+                            return null;
+                        }
+                    }, (String value) -> { // Setter
+                        try {
+                            f.set(obj, value);
+                        } catch (IllegalArgumentException | IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
+                    });
+
+                } else if (f.getType() == String[].class) {
+                    builder.addStringArrayProperty(key, () -> { // Getter
+                        try {
+                            return (String[]) f.get(obj);
+                        } catch (IllegalArgumentException | IllegalAccessException e) {
+                            e.printStackTrace();
+                            return null;
+                        }
+                    }, (String[] value) -> { // Setter
+                        try {
+                            f.set(obj, value);
+                        } catch (IllegalArgumentException | IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
+                    });
                 }
+
+            
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -96,76 +208,10 @@ public class Jank {
             try {
 
                 builder.setSmartDashboardType("tunableVal");
-                builder.addIntegerArrayProperty("asdf", ()->{ return new long[]{1,2,3};}, ( t) -> {System.out.println("Setting!!3!");});
-                // Supplier<?> supplier1 = () -> {
-                //     var tunvaltmp = val.get(0);
-                //     return null;
-                // };
-                // Consumer<?> consumer2 = (value) -> {
-                // };
-                // for (var todo : builder.getClass().getMethods()) {
-                //     if (todo.getParameterCount() == 3 && todo.getParameterTypes()[0] == String.class
-                //             && todo.getParameterTypes()[1] == Supplier.class
-                //             && todo.getParameterTypes()[2] == Consumer.class
-                //             && todo.getName().equals("addIntegerArrayProperty")) {
-                //         System.out.println(
-                //                 todo.getName() + " " + todo.getParameters()[1].getParameterizedType().getTypeName());
-                //         Type providerType = ((ParameterizedType) todo.getParameters()[1].getParameterizedType())
-                //                 .getActualTypeArguments()[0];
-                //         Type consumerType = ((ParameterizedType) todo.getParameters()[1].getParameterizedType())
-                //                 .getActualTypeArguments()[0];
-                //         // for( var paramtype : todo.getParameterTypes()){
-                //         // System.out.println(providerType == Double.class);
-                //         Supplier<?> supplier = () -> {
-                //             // var tunvaltmp = val.get(0);
-                //             return new long[] { 2, 5 };
-                //         };
-                //         Consumer<?> consumer = (value) -> {
-                //             System.out.println(value);
-                //         };
-                //         todo.invoke(builder, "memesadsf", supplier, consumer);
-                //         // builder.addIntegerArrayProperty(null, null, null);
-                //         // System.out.println("\t " + paramtype.getName());
-                //         // Supplier<providerType> t;
-                //         // }
-                //     }
-
-                // }
+               
                 for (TuneableField tf : val) {
-                    var type = tf.f.getType();
-                    Object val = tf.f.get(tf.obj);
                     addtoBuilder(builder, tf);
-                    // if (val instanceof Double || val instanceof Integer) {
-                    //     builder.addDoubleProperty(tf.f.getName(), () -> {
-                    //         double tmp = Double.NaN;
-                    //         // tf.f.get
-                    //         try {
-                    //             // Double.
-                    //             tmp = ((Number) tf.f.get(tf.obj)).doubleValue();
-
-                    //         } catch (IllegalArgumentException | IllegalAccessException e) {
-                    //             e.printStackTrace();
-                    //         }
-                    //         return tmp;
-                    //     }, (double toset) -> {
-                    //         // try {
-                    //         // tf.f.set(tf.obj, type.cast(toset));
-                    //         // } catch (IllegalArgumentException | IllegalAccessException e) {
-                    //         // // TODO Auto-generated catch block
-                    //         // e.printStackTrace();
-                    //         // }
-                    //     });
-                    // } if (val instanceof long[]){
-
-                    // }
-                    // if (type == double.class){
-
-                    // }
-                    // // tf.f.getType()
-                    // switch (tf.f.getType().) {
-                    // default:
-
-                    // }
+                   
                 }
                 // NetworkTableEntry.isValidDataType();
                 // builder.addIntegerProperty(null, null, null);

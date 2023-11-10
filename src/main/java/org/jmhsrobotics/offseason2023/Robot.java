@@ -31,6 +31,8 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     m_robotContainer = new RobotContainer();
+    
+    // CommandScheduler.getInstance().cancelAll();
     // PathPlannerServer.startServer(5811);
     
   }
@@ -98,6 +100,11 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
+
+    System.out.println("Running Annon: ");
+    // Jank.jank(m_robotContainer.driveSubsystem);
+    Jank.initTune(this);
+
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
@@ -111,10 +118,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testInit() {
-    System.out.println("Running Annon: ");
-    // Jank.jank(m_robotContainer.driveSubsystem);
-    Jank.initTune(this);
-    CommandScheduler.getInstance().cancelAll();
+    
   }
 
   @Override
