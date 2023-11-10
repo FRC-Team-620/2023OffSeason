@@ -7,6 +7,7 @@ package org.jmhsrobotics.offseason2023.subsystems.drive;
 import org.jmhsrobotics.offseason2023.Robot;
 import org.jmhsrobotics.offseason2023.subsystems.drive.DriveConstants.SwerveConstants;
 import org.jmhsrobotics.offseason2023.utils.SwerveUtils;
+import org.jmhsrobotics.offseason2023.utils.Tunable;
 import org.jmhsrobotics.warcore.swerve.SwerveVisualizer;
 
 import com.ctre.phoenix.platform.DeviceType;
@@ -23,9 +24,11 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.WPIUtilJNI;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 // Rev Code Dont Touch!
+@Tunable
 public class DriveSubsystem extends SubsystemBase {
   // Create MAXSwerveModules
   private ISwerveModule m_frontLeft = new MAXSwerveModule(
@@ -60,7 +63,12 @@ public class DriveSubsystem extends SubsystemBase {
   private SlewRateLimiter m_magLimiter = new SlewRateLimiter(SwerveConstants.kMagnitudeSlewRate);
   private SlewRateLimiter m_rotLimiter = new SlewRateLimiter(SwerveConstants.kRotationalSlewRate);
   private double m_prevTime = WPIUtilJNI.now() * 1e-6;
-
+  @Tunable
+  private double jank = 2;
+  @Tunable
+  private int hello2 = 23;
+  @Tunable
+  private long[] helloworld = {2,3};
   // Odometry class for tracking robot pose
   SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(
       SwerveConstants.kDriveKinematics,
@@ -123,6 +131,14 @@ public class DriveSubsystem extends SubsystemBase {
         },
         pose);
   }
+  public ChassisSpeeds getChassisSpeeds(){
+    ChassisSpeeds chassisSpeeds = SwerveConstants.kDriveKinematics.toChassisSpeeds(
+      m_frontLeft.getState(), m_frontRight.getState(), m_rearLeft.getState(), m_rearRight.getState());
+      return chassisSpeeds;
+  }
+  public void drive(ChassisSpeeds speeds){
+    this.drive(speeds.vxMetersPerSecond/SwerveConstants.kMaxSpeedMetersPerSecond,speeds.vyMetersPerSecond/SwerveConstants.kMaxSpeedMetersPerSecond,speeds.omegaRadiansPerSecond/SwerveConstants.kMaxAngularSpeed,false,false);
+  }
 
   /**
    * Method to drive the robot using joystick info.
@@ -135,7 +151,9 @@ public class DriveSubsystem extends SubsystemBase {
    * @param rateLimit     Whether to enable rate limiting for smoother control.
    */
   public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative, boolean rateLimit) {
-
+    SmartDashboard.putNumber("SwerveDrive/Input/SwerveDriveXSpeed", xSpeed);
+    SmartDashboard.putNumber("SwerveDrive/Input/SwerveDriveYSpeed", ySpeed);
+    SmartDashboard.putNumber("SwerveDrive/Input/SwerveDriveRotSpeed", rot);
     double xSpeedCommanded;
     double ySpeedCommanded;
 
@@ -268,7 +286,6 @@ public class DriveSubsystem extends SubsystemBase {
     this.setX();
     this.drive(0, 0, 0, SwerveConstants.kFieldRelative, SwerveConstants.kRateLimit);
   }
-
   @Override
   public void simulationPeriodic() {
     m_frontLeft.update(0.02);

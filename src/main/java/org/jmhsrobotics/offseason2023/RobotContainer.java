@@ -8,16 +8,19 @@ import org.jmhsrobotics.offseason2023.controlBoard.CompControl;
 import org.jmhsrobotics.offseason2023.controlBoard.ControlBoard;
 import org.jmhsrobotics.offseason2023.subsystems.drive.DriveSubsystem;
 import org.jmhsrobotics.offseason2023.subsystems.drive.commands.DriveCommand;
+import org.jmhsrobotics.offseason2023.utils.Tunable;
+import org.jmhsrobotics.warcore.nt.NT4Util;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
+@Tunable
 public class RobotContainer {
 
   private ControlBoard control = new CompControl();
-  private DriveSubsystem driveSubsystem = new DriveSubsystem();
+  public DriveSubsystem driveSubsystem = new DriveSubsystem();
 
   public RobotContainer() {
 

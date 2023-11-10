@@ -11,10 +11,10 @@ import org.jmhsrobotics.offseason2023.subsystems.drive.DriveConstants.SwerveCons
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
-public class DriveCommand extends CommandBase {
+public class DriveCommand extends Command {
   /** Creates a new DriveCommand. */
   private DriveSubsystem driveSubsystem;
   // TODO: Update this control to a control board style input
@@ -48,10 +48,10 @@ public class DriveCommand extends CommandBase {
     double rotationSpeed = MathUtil.applyDeadband(
         this.getSquareInput(this.control.rotationalInput()) * SwerveConstants.kMaxRotationSpeed,
         SwerveConstants.kDeadBand);
-    SmartDashboard.putNumber("SwerveDrive/Input/SwerveDriveXSpeed", xSpeed);
-    SmartDashboard.putNumber("SwerveDrive/Input/SwerveDriveXSpeed", ySpeed);
-    SmartDashboard.putNumber("SwerveDrive/Input/SwerveDriveXSpeed", rotationSpeed);
-    this.driveSubsystem.drive(xSpeed, ySpeed, rotationSpeed, SwerveConstants.kFieldRelative,
+    // SmartDashboard.putNumber("SwerveDrive/Input/SwerveDriveXSpeed", xSpeed);
+    // SmartDashboard.putNumber("SwerveDrive/Input/SwerveDriveYSpeed", ySpeed);
+    // SmartDashboard.putNumber("SwerveDrive/Input/SwerveDriveRotSpeed", rotationSpeed);
+    this.driveSubsystem.drive(xSpeed, ySpeed, rotationSpeed, false,
         SwerveConstants.kRateLimit);
 
     // If a/b is pressed on the contorller, set the robot to brake mode/ re-define

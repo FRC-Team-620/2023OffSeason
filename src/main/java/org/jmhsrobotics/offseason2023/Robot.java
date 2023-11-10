@@ -4,6 +4,21 @@
 
 package org.jmhsrobotics.offseason2023;
 
+import java.util.List;
+
+import org.jmhsrobotics.offseason2023.utils.Jank;
+
+import com.pathplanner.lib.commands.FollowPathHolonomic;
+import com.pathplanner.lib.path.GoalEndState;
+import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.ReplanningConfig;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -16,6 +31,8 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     m_robotContainer = new RobotContainer();
+    // PathPlannerServer.startServer(5811);
+    
   }
 
   @Override
@@ -39,6 +56,38 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
+    // var pp = new PPSwerveControllerCommand();
+    
+    List<Translation2d> bezierPoints = PathPlannerPath.bezierFromPoses(
+      new Pose2d(1.0, 1.0, Rotation2d.fromDegrees(0)),
+      new Pose2d(3.0, 1.0, Rotation2d.fromDegrees(0)),
+      new Pose2d(5.0, 3.0, Rotation2d.fromDegrees(0))
+  );
+  
+  
+  // Create the path using the bezier points created above
+  PathPlannerPath path = new PathPlannerPath(
+      bezierPoints,
+      new PathConstraints(3.0, 3.0, 2 * Math.PI, 4 * Math.PI), // The constraints for this path. If using a differential drivetrain, the angular constraints have no effect.
+      new GoalEndState(0.0, Rotation2d.fromDegrees(0)) // Goal end state. You can set a holonomic rotation here. If using a differential drivetrain, the rotation will have no effect.
+  );
+
+    var dr = m_robotContainer.driveSubsystem;
+    var pp = new FollowPathHolonomic(
+      path,
+      dr::getPose, 
+      dr::getChassisSpeeds, 
+      dr::drive, 
+      new HolonomicPathFollowerConfig(
+        new PIDConstants(5, 0.0, 0.0), 
+        new PIDConstants(5, 0.0, 0.0), 
+        4.5, 
+        0.4, 
+        new ReplanningConfig()),
+      dr);
+
+      pp.schedule();
+    // 
   }
 
   @Override
@@ -62,6 +111,9 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testInit() {
+    System.out.println("Running Annon: ");
+    // Jank.jank(m_robotContainer.driveSubsystem);
+    Jank.initTune(this);
     CommandScheduler.getInstance().cancelAll();
   }
 
