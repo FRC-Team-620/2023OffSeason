@@ -8,6 +8,7 @@ import org.jmhsrobotics.offseason2023.controlBoard.CompControl;
 import org.jmhsrobotics.offseason2023.controlBoard.ControlBoard;
 import org.jmhsrobotics.offseason2023.subsystems.drive.DriveSubsystem;
 import org.jmhsrobotics.offseason2023.subsystems.drive.commands.DriveCommand;
+import org.subsystems.vision.visionSubsystem;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -18,10 +19,12 @@ public class RobotContainer {
 
   private ControlBoard control = new CompControl();
   private DriveSubsystem driveSubsystem = new DriveSubsystem();
+  private visionSubsystem vision = new visionSubsystem();
 
   public RobotContainer() {
 
     this.driveSubsystem.setDefaultCommand(new DriveCommand(this.driveSubsystem, this.control));
+    
     SmartDashboard.putData("Schedular", CommandScheduler.getInstance());
     configureBindings();
   }
